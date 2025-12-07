@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Play, RotateCcw, Trophy, BrainCircuit } from 'lucide-react';
+import { Play, RotateCcw, Trophy, Terminal } from 'lucide-react';
 import { Coordinate, Direction, GameStatus } from '../types';
 import { Controls } from './Controls';
 import { generateGameCommentary } from '../services/geminiService';
@@ -14,8 +14,7 @@ export const SnakeGame: React.FC = () => {
   const [status, setStatus] = useState<GameStatus>(GameStatus.IDLE);
   const [score, setScore] = useState(0);
   const [highScore, setHighScore] = useState(0);
-  const [aiCommentary, setAiCommentary] = useState<string>("");
-  const [isAiLoading, setIsAiLoading] = useState(false);
+  const [commentary, setCommentary] = useState<string>("");
 
   // Refs for mutable values needed inside the game loop to avoid closure staleness
   const directionRef = useRef<Direction>(Direction.RIGHT);
@@ -54,11 +53,9 @@ export const SnakeGame: React.FC = () => {
     if (gameLoopRef.current) clearInterval(gameLoopRef.current);
     setStatus(GameStatus.GAME_OVER);
     
-    // Trigger AI Commentary
-    setIsAiLoading(true);
+    // Get Local Commentary
     const comment = await generateGameCommentary(score);
-    setAiCommentary(comment);
-    setIsAiLoading(false);
+    setCommentary(comment);
   }, [score]);
 
   const resetGame = () => {
@@ -68,7 +65,7 @@ export const SnakeGame: React.FC = () => {
     directionRef.current = Direction.RIGHT;
     setStatus(GameStatus.PLAYING);
     setFood(generateFood([{ x: 10, y: 10 }]));
-    setAiCommentary("");
+    setCommentary("");
   };
 
   const handleDirectionChange = useCallback((newDir: Direction) => {
@@ -251,21 +248,12 @@ export const SnakeGame: React.FC = () => {
               <h2 className="text-4xl font-bold text-red-500 mb-2 font-mono glitch-text">GAME OVER</h2>
               <p className="text-gray-300 mb-6">Final Score: <span className="text-white font-bold">{score}</span></p>
               
-              {/* AI Commentary Section */}
+              {/* Commentary Section */}
               <div className="w-full bg-gray-800/80 rounded-lg p-4 mb-6 border border-purple-500/30 min-h-[100px] flex flex-col items-center justify-center">
                 <div className="flex items-center gap-2 text-purple-400 text-sm font-bold tracking-wider mb-2">
-                   <BrainCircuit size={16} /> AI COMMENTARY
+                   <Terminal size={16} /> SYSTEM LOG
                 </div>
-                {isAiLoading ? (
-                  <div className="flex items-center gap-2 text-gray-400 animate-pulse">
-                    <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{animationDelay: '0s'}}></div>
-                    <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
-                    <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{animationDelay: '0.4s'}}></div>
-                    <span className="text-xs">Processing failure...</span>
-                  </div>
-                ) : (
-                  <p className="text-purple-100 italic text-sm md:text-base">"{aiCommentary}"</p>
-                )}
+                <p className="text-purple-100 italic text-sm md:text-base">"{commentary}"</p>
               </div>
 
               <button 

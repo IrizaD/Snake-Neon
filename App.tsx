@@ -1,6 +1,5 @@
 import React from 'react';
 import { SnakeGame } from './components/SnakeGame';
-import { Github } from 'lucide-react';
 
 const App: React.FC = () => {
   return (
@@ -13,11 +12,11 @@ const App: React.FC = () => {
                     <span className="font-bold text-white text-lg">S</span>
                 </div>
                 <h1 className="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-gray-100 to-gray-400">
-                    Snake <span className="text-cyan-400">AI</span>
+                    Neon <span className="text-cyan-400">Snake</span>
                 </h1>
             </div>
             <div className="text-xs text-gray-500 border border-gray-800 px-3 py-1 rounded-full bg-gray-900">
-               Powered by Gemini 2.5
+               Retro Arcade v1.0
             </div>
         </div>
       </header>

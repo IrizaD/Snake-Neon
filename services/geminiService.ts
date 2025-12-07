@@ -1,52 +1,44 @@
-import { GoogleGenAI } from "@google/genai";
+// Servicio local de comentarios "Arcade Style"
+// Ya no utiliza IA externa, sino una base de datos local de respuestas.
+
+const COMMENTS = {
+  low: [
+    "Glitch in the matrix? That was terrible.",
+    "My grandmother processes faster than you.",
+    "Insert coin... oh wait, you have no skill.",
+    "System error: User competence not found.",
+    "Try opening your eyes next time."
+  ],
+  medium: [
+    "Acceptable. For a biological entity.",
+    "System optimization required. Keep practicing.",
+    "Not completely embarrassing.",
+    "You survived. Barely.",
+    "Mediocrity achieved. Congratulations."
+  ],
+  high: [
+    "System overload! High score detected.",
+    "You are worthy of the neon realm.",
+    "Don't let the pixels go to your head.",
+    "Impressive efficiency.",
+    "You have synced with the machine."
+  ]
+};
 
 export const generateGameCommentary = async (score: number): Promise<string> => {
-  // MODO 1: Entorno local / Playground
-  // Si process.env.API_KEY existe en el cliente (inyectado por vite o el playground), úsalo directamente.
-  const localApiKey = process.env.API_KEY;
+  // Simulamos una pequeña latencia para "efecto" de procesamiento
+  await new Promise(resolve => setTimeout(resolve, 300));
 
-  if (localApiKey) {
-    try {
-      const client = new GoogleGenAI({ apiKey: localApiKey });
-      const response = await client.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: `You are a sarcastic, witty 1980s arcade machine AI. The player just finished a game of Snake.
-        
-        The player's score was: ${score}.
-        
-        Provide a very short (max 2 sentences) commentary on their performance.
-        If the score is low (under 5), be roasting and sarcastic.
-        If the score is medium (5-15), be mildly impressed but demanding.
-        If the score is high (over 15), be praising but warn them not to get cocky.
-        
-        Do not use emojis. Keep it cyberpunk/retro style.`,
-      });
-      return response.text || "Connection terminated...";
-    } catch (error) {
-      console.error("Gemini API Error (Client):", error);
-      return "System Error: The AI is sleeping.";
-    }
+  let pool: string[] = [];
+
+  if (score < 5) {
+    pool = COMMENTS.low;
+  } else if (score < 15) {
+    pool = COMMENTS.medium;
+  } else {
+    pool = COMMENTS.high;
   }
 
-  // MODO 2: Producción / Vercel
-  // Si no hay key local, llamamos a la función serverless /api/commentary
-  try {
-    const response = await fetch('/api/commentary', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ score }),
-    });
-
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
-    }
-
-    const data = await response.json();
-    return data.commentary || "No data received";
-  } catch (error) {
-    console.error("Gemini API Error (Server):", error);
-    return "System Error: Server unreachable.";
-  }
+  const randomIndex = Math.floor(Math.random() * pool.length);
+  return pool[randomIndex];
 };
