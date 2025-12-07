@@ -20,3 +20,14 @@ export interface GameConfig {
   gridSize: number;
   speed: number;
 }
+
+export enum GameMode {
+  MANUAL = 'MANUAL',
+  AI_TRAINING = 'AI_TRAINING'
+}
+
+export interface QTable {
+  [state: string]: {
+    [action: string]: number
+  }
+}
